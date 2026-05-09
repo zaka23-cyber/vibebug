@@ -2,15 +2,66 @@ import { useState } from 'react'
 import ErrorForm from './components/ErrorForm'
 import AnalysisResult from './components/AnalysisResult'
 
+const EXAMPLES = [
+  {
+    platform: 'Lovable',
+    error: "TypeError: Cannot read properties of undefined (reading 'map')",
+    explanation: "Your app is trying to loop through a list that doesn't exist yet. The data hasn't loaded before the page tries to use it.",
+  },
+  {
+    platform: 'Bolt',
+    error: 'FATAL ERROR: CALL_AND_RETRY_LAST Allocation failed - JavaScript heap out of memory',
+    explanation: "Your app ran out of memory. It's trying to process too much data at once and crashed.",
+  },
+  {
+    platform: 'General',
+    error: 'java.lang.NullPointerException at LoginService.java:47',
+    explanation: "Your app tried to use something that doesn't exist. It's like trying to open a door that was never built.",
+  },
+]
+
+function ExamplesSection() {
+  return (
+    <div className="mb-6">
+      <div className="text-center mb-5">
+        <h2 className="text-white font-bold text-lg mb-1">See it in action</h2>
+        <p className="text-white/40 text-sm">Real errors, explained in plain English</p>
+      </div>
+      <div className="flex overflow-x-auto gap-4 pb-2">
+        {EXAMPLES.map(({ platform, error, explanation }) => (
+          <div
+            key={platform}
+            className="flex-shrink-0 bg-white/[0.04] border border-white/8 rounded-xl p-4 hover:border-white/20 transition-colors"
+            style={{ minWidth: '280px' }}
+          >
+            <div className="flex justify-end mb-3">
+              <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-white/8 text-white/50 border border-white/10">
+                {platform}
+              </span>
+            </div>
+            <pre className="text-orange-400/80 text-xs font-mono leading-relaxed whitespace-pre-wrap break-words bg-black/30 rounded-md p-3 mb-3">
+              {error}
+            </pre>
+            <div className="text-center text-white/30 text-base mb-3">→</div>
+            <p className="text-white/80 text-sm leading-relaxed">{explanation}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
 export default function App() {
   const [loading, setLoading] = useState(false)
   const [result, setResult] = useState(null)
   const [error, setError] = useState(null)
+  const [submittedErrorText, setSubmittedErrorText] = useState('')
 
   async function handleSubmit(platform, errorText, code) {
     setLoading(true)
     setResult(null)
     setError(null)
+    setSubmittedErrorText(errorText)
 
     try {
       const res = await fetch('http://localhost:8000/analyze', {
@@ -54,6 +105,9 @@ export default function App() {
           <ErrorForm onSubmit={handleSubmit} loading={loading} />
         </div>
 
+        {/* Examples — only shown before any result */}
+        {!result && !loading && <ExamplesSection />}
+
         {/* Loading state */}
         {loading && (
           <div className="flex items-center gap-3 text-white/50 text-sm py-4">
@@ -73,7 +127,7 @@ export default function App() {
         )}
 
         {/* Results */}
-        {result && !loading && <AnalysisResult data={result} />}
+        {result && !loading && <AnalysisResult data={result} errorText={submittedErrorText} />}
       </div>
     </div>
   )

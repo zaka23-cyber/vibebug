@@ -13,7 +13,7 @@ function Card({ borderColor, title, children }) {
   )
 }
 
-export default function AnalysisResult({ data }) {
+export default function AnalysisResult({ data, errorText }) {
   const [copied, setCopied] = useState(false)
 
   function copyPrompt() {
@@ -30,13 +30,31 @@ export default function AnalysisResult({ data }) {
         <span className="text-white/30 text-sm">Analysis complete</span>
       </div>
 
-      <Card borderColor="#ef4444" title="What Went Wrong">
-        <p className="text-white/85 text-sm leading-relaxed">{data.what}</p>
-      </Card>
+      {/* Side-by-side: Raw Error + Plain English */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div
+          className="bg-white/[0.04] rounded-lg p-5 border border-white/8"
+          style={{ borderLeft: '4px solid #f97316' }}
+        >
+          <p className="text-white/40 text-xs font-semibold uppercase tracking-widest mb-3">Your Error</p>
+          <div
+            className="overflow-y-auto text-orange-300/90 text-sm font-mono leading-relaxed whitespace-pre-wrap break-words"
+            style={{ maxHeight: '300px' }}
+          >
+            {errorText}
+          </div>
+        </div>
 
-      <Card borderColor="#f59e0b" title="Why It Happened">
-        <p className="text-white/85 text-sm leading-relaxed">{data.why}</p>
-      </Card>
+        <div
+          className="bg-white/[0.04] rounded-lg p-5 border border-white/8"
+          style={{ borderLeft: '4px solid #7c3aed' }}
+        >
+          <p className="text-white/40 text-xs font-semibold uppercase tracking-widest mb-3">What This Means</p>
+          <p className="text-white/85 text-sm leading-relaxed mb-4">{data.what}</p>
+          <p className="text-white/60 text-xs font-semibold uppercase tracking-widest mb-2">Why It Happened</p>
+          <p className="text-white/75 text-sm leading-relaxed">{data.why}</p>
+        </div>
+      </div>
 
       <Card borderColor="#22c55e" title="How To Fix It">
         <ol className="flex flex-col gap-2">
